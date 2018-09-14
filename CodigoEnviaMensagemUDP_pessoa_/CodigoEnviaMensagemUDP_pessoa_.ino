@@ -37,15 +37,6 @@ void scaneiaRede(int numeroSSID){
   }Serial.printf("Rede com menor distância foi: %s, Distância em dBs: (%d)\n", nomeRede.c_str() ,menorRede);
 }
 
-void sensorPresenca(int recebeValor){
-  if(recebeValor == HIGH){
-    digitalWrite(pinoLED, HIGH);    
-    scaneiaRede(WiFi.scanNetworks());
-  }else{
-    digitalWrite(pinoLED, LOW);
-  }
-}
-
 void conectarRede(int numeroSSID){
   int i=0;
   WiFi.mode(WIFI_STA);
@@ -57,8 +48,10 @@ void conectarRede(int numeroSSID){
     //Serial.println("Conectado na Rede Pela Web: ");
     //Serial.println(WiFi.SSID());
     //Serial.println("IP Consebido a ESP: ");
-    Serial.println(WiFi.localIP());    
-    Serial.printf("Listar o ip %s, UDP porta %d\n", WiFi.localIP().toString().c_str(), localUdpPorta); 
+    //Serial.println(WiFi.localIP());
+    Serial.printf("Meu MAC Address :%s\n", WiFi.macAddress().c_str());      
+    Serial.printf("Meu IP: %s", WiFi.localIP().toString().c_str()); 
+    Serial.printf("Porta UDP usada: %d\n", localUdpPorta);  
   }
 }
 
@@ -70,10 +63,11 @@ void enviaUDP(){
 }
 
 void recebeUDP(){
+  Serial.println("Entrei aqui");
   int tamanhoPacote=Udp.parsePacket();
   if(tamanhoPacote){
     //Recebe pacotes de entrada
-    Serial.printf("Recebe %d bytes de %s, porta $d \n", tamanhoPacote, Udp.remoteIP().toString().c_str(), Udp.remotePort());
+    Serial.printf("Recebe %d bytes de %s, porta %d \n", tamanhoPacote, Udp.remoteIP().toString().c_str(), Udp.remotePort());
     int leitura = Udp.read(mensagemEntrada, 255);
     if(leitura>0){
       mensagemEntrada[leitura]=0;     
@@ -84,8 +78,7 @@ void recebeUDP(){
 }
 
 void loop(){      
-  conectarRede(WiFi.scanNetworks());
-  //sensorPresenca(digitalRead(pinoSensor));       
+  conectarRede(WiFi.scanNetworks());     
   //WiFi.mode(WIFI_STA);  
   //WiFi.softAP("P1");
   recebeUDP();
