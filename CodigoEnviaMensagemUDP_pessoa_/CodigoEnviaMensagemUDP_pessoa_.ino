@@ -13,6 +13,7 @@ char mensagemEntrada[255];
 char mensagemDeEnvio[] = "Enviei meu MAC";
 const char* ssid = "SpeedRun WiFi";
 const char* senha = "47-999-935-1";
+const char* meuMAC = "";
  
 void setup(){
   Serial.begin(115200);  
@@ -48,22 +49,20 @@ void conectarRede(int numeroSSID){
     //Serial.println("Conectado na Rede Pela Web: ");
     //Serial.println(WiFi.SSID());
     //Serial.println("IP Consebido a ESP: ");
-    //Serial.println(WiFi.localIP());
-    Serial.printf("Meu MAC Address :%s\n", WiFi.macAddress().c_str());      
-    Serial.printf("Meu IP: %s", WiFi.localIP().toString().c_str()); 
-    Serial.printf("Porta UDP usada: %d\n", localUdpPorta);  
+    //Serial.printf("Meu IP: %s", WiFi.localIP().toString().c_str());
+    Serial.printf("Meu MAC Address: %s\n", WiFi.macAddress().c_str());
+    meuMAC=WiFi.macAddress().c_str(); 
   }
 }
 
 void enviaUDP(){
     //Envia Solicitação de MAC
     Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    Udp.write(mensagemDeEnvio);
+    Udp.write(meuMAC);
     Udp.endPacket();
 }
 
 void recebeUDP(){
-  Serial.println("Entrei aqui");
   int tamanhoPacote=Udp.parsePacket();
   if(tamanhoPacote){
     //Recebe pacotes de entrada
