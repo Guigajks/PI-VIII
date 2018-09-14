@@ -60,6 +60,8 @@ void enviaUDP(){
     Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
     Udp.write(meuMAC);
     Udp.endPacket();
+    Serial.println("Meu Mac Address na Variável: ");
+    Serial.println(meuMAC);
 }
 
 void recebeUDP(){

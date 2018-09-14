@@ -10,7 +10,7 @@
 WiFiUDP Udp;
 unsigned int localUdpPorta = 4310;
 char mensagemEntrada[255];
-char mensagemDeEnvio[] = "Preciso do seu MAC";
+char mensagemDeEnvio[] = "Preciso saber seu MAC?";
 const char* ssid = "SpeedRun WiFi";
 const char* senha = "47-999-935-1";
 IPAddress broadcastIp(192,168,43,255);
@@ -19,7 +19,7 @@ void setup(){
   Serial.begin(115200);  
   WiFi.mode(WIFI_STA);    
   WiFi.mode(WIFI_AP);
-  WiFi.softAP("P1");
+  WiFi.softAP("A1P1");
   Serial.println();
   pinMode(pinoLED, OUTPUT);
   pinMode(pinoSensor, INPUT);
@@ -68,27 +68,27 @@ void enviaUDP(){
     Udp.beginPacket(broadcastIp, localUdpPorta);
     Udp.write(mensagemDeEnvio);
     Udp.endPacket();
-    Serial.println("Enviei Solicitação de MAC");
+    Serial.println("Qual é seu MAC?");
 }
 
 void recebeUDP(){
   int tamanhoPacote=Udp.parsePacket();
   if(tamanhoPacote){
     //Recebe pacotes de entrada
-    Serial.printf("Recebe %d bytes de %s, porta $d \n", tamanhoPacote, Udp.remoteIP().toString().c_str(), Udp.remotePort());
+    //Serial.printf("Recebe %d bytes de %s, porta %d \n", tamanhoPacote, Udp.remoteIP().toString().c_str(), Udp.remotePort());
     int leitura = Udp.read(mensagemEntrada, 255);
     if(leitura>0){
       mensagemEntrada[leitura]=0;     
     }
-    Serial.printf("O pacote UDP contem: %s\n", mensagemEntrada);
+    Serial.printf("MAC Address Recebido: %s\n", mensagemEntrada);
   }
 }
 
-void loop(){      
+void loop(){    
+  WiFi.mode(WIFI_STA);  
+  WiFi.softAP("A1P1");
   conectarRede(WiFi.scanNetworks());
-  //sensorPresenca(digitalRead(pinoSensor));       
-  //WiFi.mode(WIFI_STA);  
-  //WiFi.softAP("P1");
+  //sensorPresenca(digitalRead(pinoSensor));
   enviaUDP();
   recebeUDP();
   delay(500);                         
