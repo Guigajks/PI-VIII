@@ -14,6 +14,7 @@ char mensagemDeEnvio[] = "Preciso saber seu MAC?";
 const char* ssid = "SpeedRun WiFi";
 const char* senha = "47-999-935-1";
 IPAddress broadcastIp(192,168,43,255);
+
  
 void setup(){
   Serial.begin(115200);  
