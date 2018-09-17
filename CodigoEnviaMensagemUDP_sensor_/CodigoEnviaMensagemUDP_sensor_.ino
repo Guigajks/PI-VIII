@@ -107,6 +107,5 @@ void loop(){
   WiFi.softAP("A1P1");
   conectarRede(WiFi.scanNetworks());
   sensorPresenca(digitalRead(pinoSensor));
-  recebeUDP();
-//  delay(500);                         
+  recebeUDP();                        
 }
