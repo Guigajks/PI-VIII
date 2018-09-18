@@ -8,8 +8,10 @@ LISTENING_PORT = 300
 BUFFER_SIZE = 1024
 
 def parse_data(data):
-    split = data.split('>')
+    mac_address = data.split('>')[0]
+    networks = [tuple(dado.split('-')) for dado in data.split(';')[1]]
 
+    return (mac_address, networks)
 
 def listen_UDP():
 
@@ -31,6 +33,7 @@ def listen_TCP():
         conn, address = sock.accept()
         print ("TCP connection from", address)
         data = conn.recv(BUFFER_SIZE)
+        data = parse_data(data)
         print ("Mesage: ", data)
         conn.close()
 
