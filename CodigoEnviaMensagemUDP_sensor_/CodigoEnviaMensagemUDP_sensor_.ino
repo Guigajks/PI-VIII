@@ -11,10 +11,9 @@
 
 WiFiUDP Udp;
 unsigned int localUdpPorta = 4310;
-char mensagemEntrada[255];
-char mensagemDeEnvio[] = "Passou na Porta";
 const char* ssid = "SpeedRun WiFi";
 const char* senha = "47-999-935-1";
+  char mensagemEntradaMac[255];
 IPAddress broadcastIp(192,168,43,255);
 
  
@@ -32,7 +31,7 @@ void setup(){
   Udp.begin(localUdpPorta);
 }
 
-void scaneiaRede(int numeroSSID){  
+void scaneiaRede(int numeroSSID){  // Ainda não estou usando para nada essa função ainda
   int i=0;
   String nomeRede="";
   int menorRede=-1000;
@@ -68,8 +67,35 @@ void conectarRede(int numeroSSID){
   }
 }
 
+void enviaMacParaRasp(){
+  char mensagemDeEnvio[] = "Quem esta por aqui?";
+  Udp.begin(IPRASP, PORTARASP);//Luiz add aqui o IP e a Porta da Rasp
+  Udp.write(mensagemDeEnvio);
+  Udp.endPacket();
+  recMacDaRasp();
+}
+
+void recMacDaRasp(){
+  char mensagemEntrada[255];
+  int tamanhoPacote=Udp.parsePacket();
+  if(tamanhoPacote){
+    //Recebe pacotes de entrada
+    //Serial.printf("Recebe %d bytes de %s, porta %d \n", tamanhoPacote, Udp.remoteIP().toString().c_str(), Udp.remotePort());
+    int leitura = Udp.read(mensagemEntrada, 255);
+    if(leitura>0){
+      mensagemEntrada[leitura]=0;
+      if(mensagemEntrada==mensagemEntradaMac){
+        Serial.println("Você é funcionário");
+      }else{
+        Serial.println("Você não é funcionário");
+      }
+    }    
+  }
+}
+
 void enviaUDP(){
     //Envia Solicitação de MAC
+    char mensagemDeEnvio[] = "Passou na Porta";
     Udp.beginPacket(broadcastIp, localUdpPorta);
     Udp.write(mensagemDeEnvio);
     Udp.endPacket();
@@ -89,7 +115,7 @@ void recebeUDP(){
   if(tamanhoPacote){
     //Recebe pacotes de entrada
     //Serial.printf("Recebe %d bytes de %s, porta %d \n", tamanhoPacote, Udp.remoteIP().toString().c_str(), Udp.remotePort());
-    int leitura = Udp.read(mensagemEntrada, 255);
+    int leitura = Udp.read(mensagemEntradaMac, 255);
     if(leitura>0){
       mensagemEntrada[leitura]=0;  
       int i=0;
@@ -100,6 +126,7 @@ void recebeUDP(){
     }
     Serial.printf("MAC Address Recebido: %s\n", mensagemEntrada);                
     digitalWrite(pinoLEDRec, LOW);
+    enviaMacParaRasp();
   }
 }
 
