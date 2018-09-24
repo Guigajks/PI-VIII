@@ -28,6 +28,7 @@ void setup(){
   pinMode(pinoLEDEnv, OUTPUT);
   pinMode(pinoLEDRec, OUTPUT);
   pinMode(pinoSensor, INPUT);
+  conectarRede(WiFi.scanNetworks());
   Udp.begin(localUdpPorta);
 }
 
@@ -40,11 +41,11 @@ void scaneiaRede(int numeroSSID){
       menorRede=WiFi.RSSI(i);    
       nomeRede=WiFi.SSID(i);
     }
-  }Serial.printf("Rede com menor distância foi: %s, Distância em dBs: (%d)\n", nomeRede.c_str() ,menorRede);
+  }//Serial.printf("Rede com menor distância foi: %s, Distância em dBs: (%d)\n", nomeRede.c_str() ,menorRede);
 }
 
 void sensorPresenca(int recebeValor){
-  if(recebeValor == HIGH){
+  if(recebeValor == 0){
     digitalWrite(pinoLEDSen, HIGH);    
     //scaneiaRede(WiFi.scanNetworks());
     enviaUDP();    
@@ -105,7 +106,6 @@ void recebeUDP(){
 void loop(){    
   WiFi.mode(WIFI_STA);  
   WiFi.softAP("A1P1");
-  conectarRede(WiFi.scanNetworks());
   sensorPresenca(digitalRead(pinoSensor));
   recebeUDP();                        
 }
