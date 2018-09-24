@@ -10,7 +10,6 @@
 WiFiUDP Udp;
 unsigned int localUdpPorta = 4310;
 char mensagemEntrada[255];
-String meuMAC = "";
 char convMeuMAC[20];
 const char* ssid = "SpeedRun WiFi";
 const char* senha = "47-999-935-1";
@@ -24,11 +23,13 @@ void setup() {
   Serial.println();
   pinMode(pinoLEDEnv, OUTPUT);
   pinMode(pinoLEDRec, OUTPUT);
+  conectarRede(WiFi.scanNetworks());
   Udp.begin(localUdpPorta);
 }
 
 void conectarRede(int numeroSSID) {
   int i = 0;
+  String meuMAC = "";
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, senha);
   while (WiFi.status() != WL_CONNECTED) {
@@ -82,7 +83,6 @@ void recebeUDP() {
 void loop() {
   WiFi.mode(WIFI_STA);
   WiFi.softAP("P1");
-  conectarRede(WiFi.scanNetworks());
   recebeUDP();
   delay(500);
 }
