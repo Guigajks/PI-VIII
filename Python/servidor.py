@@ -3,6 +3,8 @@
 from threading import Thread
 from netifaces import ifaddresses, AF_INET
 import socket 
+import calculadora_posicao as cp
+import sys
 
 LISTENING_IP = socket.gethostbyname(ifaddresses('wlan0')[AF_INET][0]['addr'])
 LISTENING_PORT = 5000
@@ -10,13 +12,15 @@ BUFFER_SIZE = 1024
 
 def parse_data(data):
     try:
+        teste = '20:e8:17:05:d7:69>A0P0-50;A0P1-48.05;A0P2-46.05'
+        mac_address = teste.split('>')[0]
 
-        mac_address = data.split('>')[0]
-        networks = [tuple(dado.split('-')) for dado in data.split(';')[1]]
+        tmp = teste.split('>')[1].split(';')
+        networks = [(cp.retorna_posicao(tst.split('-')[0]), cp.calcula_raio(2400.0,float(tst.split('-')[1]))) for tst in tmp]
 
-        return (mac_address, networks)
-    except:
-        print "Parsing failed"
+        return (mac_address, cp.trilateracao(networks))
+    except Exception as ex:
+        print ex
         return "Error"
 
 def listen_UDP():
