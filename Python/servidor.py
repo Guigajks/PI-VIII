@@ -10,6 +10,8 @@ LISTENING_IP = socket.gethostbyname(ifaddresses('wlan0')[AF_INET][0]['addr'])
 LISTENING_PORT = 5000
 BUFFER_SIZE = 1024
 
+mac = '18:FE:34:CB:35:70'
+
 def parse_data(data):
     try:
         teste = '20:e8:17:05:d7:69>A0P0-50;A0P1-48.05;A0P2-46.05'
@@ -32,7 +34,9 @@ def listen_UDP():
     while True:
         data, address = sock.recvfrom(BUFFER_SIZE)
         print ("UDP Messsage from address: ", address)
-        print ("Message: ", data)
+        print ("Message: ", data+'oi')
+        print("Send to:", address)
+        sock.sendto(data+'oi',address)
 
 def listen_TCP():
 
