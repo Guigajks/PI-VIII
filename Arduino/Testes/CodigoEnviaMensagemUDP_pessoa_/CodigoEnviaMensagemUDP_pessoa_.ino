@@ -4,15 +4,15 @@
 */
 #include "ESP8266WiFi.h"
 #include "WiFiUdp.h"
-#define pinoLEDRec D1
-#define pinoLEDEnv D2
+#define pinoLEDRecBro D1
+#define pinoLEDEnvBro D2
 
 WiFiUDP Udp;
 unsigned int localUdpPorta = 4310;
 char mensagemEntrada[255];
 char convMeuMAC[20];
-const char* ssid = "SpeedRun WiFi";
-const char* senha = "47-999-935-1";
+const char* ssid = "nois";
+const char* senha = "12345678";
 
 
 void setup() {
@@ -21,8 +21,8 @@ void setup() {
   WiFi.mode(WIFI_AP);
   WiFi.softAP("P1");
   Serial.println();
-  pinMode(pinoLEDEnv, OUTPUT);
-  pinMode(pinoLEDRec, OUTPUT);
+  pinMode(pinoLEDEnvBro, OUTPUT);
+  pinMode(pinoLEDRecBro, OUTPUT);
   conectarRede(WiFi.scanNetworks());
   Udp.begin(localUdpPorta);
 }
@@ -39,8 +39,8 @@ void conectarRede(int numeroSSID) {
     //Serial.println("Conectado na Rede Pela Web: ");
     //Serial.println(WiFi.SSID());
     //Serial.println("IP Consebido a ESP: ");
-    //Serial.printf("Meu IP: %s", WiFi.localIP().toString().c_str());
-    //Serial.printf("Meu MAC Address: %s\n", WiFi.macAddress().c_str());
+    Serial.printf("Meu IP: %s", WiFi.localIP().toString().c_str());
+    Serial.printf("Meu MAC Address: %s\n", WiFi.macAddress().c_str());
     meuMAC = WiFi.macAddress();
     meuMAC.toCharArray(convMeuMAC, 20);
   }
@@ -54,10 +54,10 @@ void enviaUDP() {
   if (Udp.endPacket() == true) {
     int i = 0;
     while (i < 30000) {
-      digitalWrite(pinoLEDEnv, HIGH);
+      digitalWrite(pinoLEDEnvBro, HIGH);
       i = i + 1;
     }
-  } digitalWrite(pinoLEDEnv, LOW);
+  } digitalWrite(pinoLEDEnvBro, LOW);
 }
 
 void recebeUDP() {
@@ -70,12 +70,12 @@ void recebeUDP() {
       mensagemEntrada[leitura] = 0;
       int i = 0;
       while (i < 30000) {
-        digitalWrite(pinoLEDRec, HIGH);
+        digitalWrite(pinoLEDRecBro, HIGH);
         i = i + 1;
       }
     }
     //Serial.printf("O pacote UDP contem: %s\n", mensagemEntrada);
-    digitalWrite(pinoLEDRec, LOW);
+    digitalWrite(pinoLEDRecBro, LOW);
     enviaUDP();
   }
 }
