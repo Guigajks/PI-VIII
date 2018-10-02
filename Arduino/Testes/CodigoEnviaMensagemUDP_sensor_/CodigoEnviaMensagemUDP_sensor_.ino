@@ -97,7 +97,6 @@ void enviaMacParaRasp() {
       }
     }
     digitalWrite(pinoLEDEnvRas, LOW);
-    recMacDaRasp();
   }
 }
 
@@ -174,5 +173,6 @@ void loop() {
   WiFi.mode(WIFI_STA);
   WiFi.softAP("A1P1");
   sensorPresenca(digitalRead(pinoSensorInf));
-  recebeUDP();
+  recebeUDP();  
+  recMacDaRasp();
 }
