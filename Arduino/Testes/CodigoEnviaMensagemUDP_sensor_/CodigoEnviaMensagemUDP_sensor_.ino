@@ -1,6 +1,7 @@
 /*  Desenvolvido por Alessandro Kantousian
     Data 13/09/2018
     Referências: https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/udp-examples.html
+
 */
 #include "ESP8266WiFi.h"
 #include "WiFiUdp.h"
@@ -11,15 +12,16 @@
 #define pinoLEDRecRas D5
 #define pinoSensorInf D7
 
-unsigned int localUdpPorta = 4310;
+unsigned int localUdpPorta = 4500;
 unsigned int localUdpPortaRasp = 10000;
-const char* ssid = "nois";
-const char* senha = "12345678";
+const char* ssid = "SpeedRun WiFi";
+const char* senha = "47-999-935-1";
 char mensagemEntradaMacBro[255];
 String converteMAC, recebeMACConv;
+
 WiFiUDP Udp;
-IPAddress broadcastIp(192, 168, 0, 255);
-IPAddress broadcastIpRasp(192, 168, 0, 102);
+IPAddress broadcastIp(192, 168, 43, 255);
+IPAddress broadcastIpRasp(192, 168, 43, 65);
 
 void setup() {
 
@@ -72,18 +74,18 @@ void conectarRede(int numeroSSID) {
     //Serial.println("Conectado na Rede Pela Web: ");
     //Serial.println(WiFi.SSID());
     //Serial.println("IP Consebido a ESP: ");
-    //Serial.println(WiFi.localIP());
-    Serial.printf("Listar o ip %s, UDP porta %d\n", WiFi.localIP().toString().c_str(), localUdpPorta);
+    Serial.println(WiFi.localIP());
+    //Serial.printf("Listar o ip %s, UDP porta %d\n", WiFi.localIP().toString().c_str(), localUdpPorta);
   }
 }
 
 void enviaMacParaRasp() {
-
+  
   //Envia o MAC para o servidor, que foi respondido pelo Broadcast ativado pelo sensor
   converteMAC = String(mensagemEntradaMacBro);
   if (converteMAC != recebeMACConv) {
     recebeMACConv = converteMAC;
-  //  Serial.println(recebeMACConv);
+    //  Serial.println(recebeMACConv);
     Udp.beginPacket(broadcastIpRasp, localUdpPortaRasp);//Luiz add aqui o IP e a Porta da Rasp
     Udp.write(mensagemEntradaMacBro);
     Udp.endPacket();
@@ -115,6 +117,7 @@ void recMacDaRasp() {
         digitalWrite(pinoLEDRecRas, HIGH);
         i = i + 1;
       }
+      Serial.println("Esse é o MAC respondido pelo Servidor: ");
       Serial.println(respostaEntradaMacRas);
       digitalWrite(pinoLEDRecRas, LOW);
       //if(mensagemEntrada==mensagemEntradaMac){
@@ -154,6 +157,7 @@ void recebeUDP() {
     int leitura = Udp.read(mensagemEntradaMacBro, 255);
     if (leitura > 0) {
       mensagemEntradaMacBro[leitura] = 0;
+      Serial.println("Este MAC é do Broadcast: ");
       Serial.println(mensagemEntradaMacBro);
       int i = 0;
       while (i < 30000) {

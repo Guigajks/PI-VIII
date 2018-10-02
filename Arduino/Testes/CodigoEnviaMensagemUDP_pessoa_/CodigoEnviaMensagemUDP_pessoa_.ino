@@ -4,15 +4,15 @@
 */
 #include "ESP8266WiFi.h"
 #include "WiFiUdp.h"
-#define pinoLEDRecBro D1
-#define pinoLEDEnvBro D2
+#define pinoLEDRecBro D6
+#define pinoLEDEnvBro D7
 
 WiFiUDP Udp;
-unsigned int localUdpPorta = 4310;
+unsigned int localUdpPorta = 4500;
 char mensagemEntrada[255];
 char convMeuMAC[20];
-const char* ssid = "nois";
-const char* senha = "12345678";
+const char* ssid = "SpeedRun WiFi";
+const char* senha = "47-999-935-1";
 
 
 void setup() {
@@ -39,7 +39,7 @@ void conectarRede(int numeroSSID) {
     //Serial.println("Conectado na Rede Pela Web: ");
     //Serial.println(WiFi.SSID());
     //Serial.println("IP Consebido a ESP: ");
-    Serial.printf("Meu IP: %s", WiFi.localIP().toString().c_str());
+    Serial.printf("Meu IP: %s\n", WiFi.localIP().toString().c_str());
     Serial.printf("Meu MAC Address: %s\n", WiFi.macAddress().c_str());
     meuMAC = WiFi.macAddress();
     meuMAC.toCharArray(convMeuMAC, 20);
@@ -84,5 +84,4 @@ void loop() {
   WiFi.mode(WIFI_STA);
   WiFi.softAP("P1");
   recebeUDP();
-  delay(500);
 }
