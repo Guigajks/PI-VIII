@@ -16,7 +16,8 @@ unsigned int localUdpPorta = 4500;
 unsigned int localUdpPortaRasp = 10000;
 const char* ssid = "SpeedRun WiFi";
 const char* senha = "47-999-935-1";
-char mensagemEntradaMacBro[255];
+char mensagemEntradaMacBro[255];  
+char mensagemIndentificaPessoa[8];
 String converteMAC, recebeMACConv;
 
 WiFiUDP Udp;
@@ -45,12 +46,13 @@ void scaneiaRede(int numeroSSID) { // Ainda não estou usando para nada essa fun
   int i = 0;
   String nomeRede = "";
   int menorRede = -1000;
-  for (i; i < numeroSSID; i++) {
+  while (i < numeroSSID) {
     if (WiFi.RSSI(i) >= menorRede) {
       menorRede = WiFi.RSSI(i);
       nomeRede = WiFi.SSID(i);
     }
-  }//Serial.printf("Rede com menor distância foi: %s, Distância em dBs: (%d)\n", nomeRede.c_str() ,menorRede);
+    i = i + 1;
+  } Serial.printf("Rede com menor distância foi: %s, Distância em dBs: (%d)\n", nomeRede.c_str() , menorRede);
 }
 
 void sensorPresenca(int recebeValor) {
@@ -80,11 +82,11 @@ void conectarRede(int numeroSSID) {
 }
 
 void enviaMacParaRasp() {
-  
+
   //Envia o MAC para o servidor, que foi respondido pelo Broadcast ativado pelo sensor
-  converteMAC = String(mensagemEntradaMacBro);
-  if (converteMAC != recebeMACConv) {
-    recebeMACConv = converteMAC;
+  //converteMAC = String(mensagemEntradaMacBro);
+  //if (converteMAC != recebeMACConv) {
+    //recebeMACConv = converteMAC;
     //  Serial.println(recebeMACConv);
     Udp.beginPacket(broadcastIpRasp, localUdpPortaRasp);//Luiz add aqui o IP e a Porta da Rasp
     Udp.write(mensagemEntradaMacBro);
@@ -97,7 +99,7 @@ void enviaMacParaRasp() {
       }
     }
     digitalWrite(pinoLEDEnvRas, LOW);
-  }
+  //}
 }
 
 void recMacDaRasp() {
@@ -147,7 +149,7 @@ void enviaUDP() {
   digitalWrite(pinoLEDEnvBro, LOW);
 }
 
-void recebeUDP() {
+void recebeUDP() {  
 
   int tamanhoPacote = Udp.parsePacket();
   if (tamanhoPacote) {
@@ -173,6 +175,7 @@ void loop() {
   WiFi.mode(WIFI_STA);
   WiFi.softAP("A1P1");
   sensorPresenca(digitalRead(pinoSensorInf));
-  recebeUDP();  
-  recMacDaRasp();
+  //scaneiaRede(WiFi.scanNetworks());
+  recebeUDP();
+  //recMacDaRasp();
 }
