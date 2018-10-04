@@ -177,5 +177,5 @@ void loop() {
   sensorPresenca(digitalRead(pinoSensorInf));
   //scaneiaRede(WiFi.scanNetworks());
   recebeUDP();
-  //recMacDaRasp();
+  recMacDaRasp();
 }
