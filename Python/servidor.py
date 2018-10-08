@@ -1,13 +1,14 @@
 # source code https://stackoverflow.com/questions/29022329/basic-udp-tcp-program
 
 from threading import Thread
-from netifaces import ifaddresses, AF_INET
+import websockets
+import asyncio
+# from netifaces import ifaddresses, AF_INET
 import socket 
 import calculadora_posicao as cp
-import sys
 
-LISTENING_IP = socket.gethostbyname(ifaddresses('wlan0')[AF_INET][0]['addr'])
-LISTENING_PORT = 5000
+LISTENING_IP = socket.gethostbyname(socket.gethostbyname(socket.gethostname()))
+LISTENING_PORT = 10000
 BUFFER_SIZE = 1024
 
 mac = '18:FE:34:CB:35:70'
@@ -22,7 +23,7 @@ def parse_data(data):
 
         return (mac_address, cp.trilateracao(networks))
     except Exception as ex:
-        print ex
+        print (ex)
         return "Error"
 
 def listen_UDP():
@@ -34,16 +35,20 @@ def listen_UDP():
     while True:
         data, address = sock.recvfrom(BUFFER_SIZE)
         print ("UDP Messsage from address: ", address)
-        print ("Message: ", data+'oi')
+        print ("Message: ", data)
         print("Send to:", address)
-        sock.sendto(data+'oi',address)
+        sock.sendto(data,address)
+
+async def hello(uri):
+    async with websockets.connect(uri) as websocket:
+        await websocket.send("Hello world!")
 
 def listen_TCP():
-
+    # ws = connect("http://localhost:5080/")
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IPv4, TCP
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind((LISTENING_IP, LISTENING_PORT))
-
+    asyncio.set_event_loop(asyncio.new_event_loop())
     while True:
         sock.listen(1)
         conn, address = sock.accept()
@@ -51,6 +56,11 @@ def listen_TCP():
         data = conn.recv(BUFFER_SIZE)
         data = parse_data(data)
         print ("Mesage: ", data)
+        try:
+            asyncio.get_event_loop().run_until_complete(
+            hello('ws://localhost:5000/'))
+        except:
+            print('Coco')
         conn.close()
 
 if __name__ == "__main__":
