@@ -11,16 +11,15 @@
 WiFiUDP Udp;
 unsigned int localUdpPorta = 4500;
 char mensagemEntrada[255];
-char convMeuMAC[20];
-char nomeAccessChar[8];
-const char* ssid = "SpeedRun WiFi";
-const char* senha = "47-999-935-1";
+char convMeuMAC[21];
+const char* ssid = "SARKISTEL";
+const char* senha = "479999351";
 
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
   WiFi.mode(WIFI_AP);
-  WiFi.softAP("P1");
+  WiFi.softAP("P1.");
   Serial.println();
   pinMode(pinoLEDEnvBro, OUTPUT);
   pinMode(pinoLEDRecBro, OUTPUT);
@@ -42,8 +41,8 @@ void conectarRede(int numeroSSID) {
     //Serial.println("IP Consebido a ESP: ");
     Serial.printf("Meu IP: %s\n", WiFi.localIP().toString().c_str());
     Serial.printf("Meu MAC Address: %s\n", WiFi.macAddress().c_str());
-    meuMAC = "P1" + WiFi.macAddress();
-    meuMAC.toCharArray(convMeuMAC, 20);
+    meuMAC = "P1." + WiFi.macAddress();
+    meuMAC.toCharArray(convMeuMAC, 21);
   }
 }
 
@@ -83,6 +82,6 @@ void recebeUDP() {
 
 void loop() {
   WiFi.mode(WIFI_STA);
-  WiFi.softAP("P1");
+  WiFi.softAP("P1.");
   recebeUDP();
 }

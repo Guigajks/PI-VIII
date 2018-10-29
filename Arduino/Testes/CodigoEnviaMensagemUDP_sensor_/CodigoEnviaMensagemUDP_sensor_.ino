@@ -3,8 +3,8 @@
     Referências: https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/udp-examples.html
 
 */
-#include "ESP8266WiFi.h"
-#include "WiFiUdp.h"
+#include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
 #define pinoLEDRecBro D0
 #define pinoLEDEnvBro D2
 #define pinoLEDSenInf D3
@@ -12,20 +12,23 @@
 #define pinoLEDRecRas D5
 #define pinoSensorInf D7
 
+long previousMillis=0; //Variável de controle do tempo
+long intParaZerarVar=6000; //Tempo em ms do intervalo a ser executado
+unsigned long currentMillis;
 unsigned int localUdpPorta = 4500;
 unsigned int localUdpPortaRasp = 10000;
-const char* ssid = "SpeedRun WiFi";
-const char* senha = "47-999-935-1";
-char mensagemEntradaMacBro[255];  
+const char* ssid = "SARKISTEL";
+const char* senha = "479999351";
+char mensagemEntradaMacBro[260];  
 char mensagemIndentificaPessoa[8];
 String converteMAC, recebeMACConv;
 
 WiFiUDP Udp;
-IPAddress broadcastIp(192, 168, 43, 255);
+IPAddress broadcastIp(192, 168, 0, 255);
 IPAddress broadcastIpRasp(192, 168, 43, 65);
 
 void setup() {
-
+  
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
   WiFi.mode(WIFI_AP);
@@ -40,6 +43,14 @@ void setup() {
   conectarRede(WiFi.scanNetworks());
   Udp.begin(localUdpPorta);
   Udp.begin(localUdpPortaRasp);
+}
+
+void zeraVariavel(){
+  
+  if((currentMillis-previousMillis) > intParaZerarVar){
+    previousMillis=currentMillis;
+    recebeMACConv="a";    
+  }
 }
 
 void scaneiaRede(int numeroSSID) { // Ainda não estou usando para nada essa função ainda
@@ -82,11 +93,12 @@ void conectarRede(int numeroSSID) {
 }
 
 void enviaMacParaRasp() {
-
+  
+  zeraVariavel();  
   //Envia o MAC para o servidor, que foi respondido pelo Broadcast ativado pelo sensor
-  //converteMAC = String(mensagemEntradaMacBro);
-  //if (converteMAC != recebeMACConv) {
-    //recebeMACConv = converteMAC;
+  converteMAC = String(mensagemEntradaMacBro);
+  if (converteMAC != recebeMACConv) {
+    recebeMACConv = converteMAC;
     //  Serial.println(recebeMACConv);
     Udp.beginPacket(broadcastIpRasp, localUdpPortaRasp);//Luiz add aqui o IP e a Porta da Rasp
     Udp.write(mensagemEntradaMacBro);
@@ -99,7 +111,7 @@ void enviaMacParaRasp() {
       }
     }
     digitalWrite(pinoLEDEnvRas, LOW);
-  //}
+  }
 }
 
 void recMacDaRasp() {
@@ -172,10 +184,12 @@ void recebeUDP() {
 }
 
 void loop() {
+  
+  currentMillis = millis(); //Tempo atual em ms
   WiFi.mode(WIFI_STA);
   WiFi.softAP("A1P1");
   sensorPresenca(digitalRead(pinoSensorInf));
   //scaneiaRede(WiFi.scanNetworks());
-  recebeUDP();
   recMacDaRasp();
+  recebeUDP();
 }
