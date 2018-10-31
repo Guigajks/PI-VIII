@@ -12,8 +12,8 @@ WiFiUDP Udp;
 unsigned int localUdpPorta = 4500;
 char mensagemEntrada[255];
 char convMeuMAC[21];
-const char* ssid = "SARKISTEL";
-const char* senha = "479999351";
+const char* ssid = "Familia Sarkis";
+const char* senha = "47-999-935-1";
 
 void setup() {
   Serial.begin(115200);

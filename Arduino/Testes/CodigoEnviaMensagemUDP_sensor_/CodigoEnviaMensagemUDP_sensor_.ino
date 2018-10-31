@@ -17,14 +17,14 @@ long intParaZerarVar=6000; //Tempo em ms do intervalo a ser executado
 unsigned long currentMillis;
 unsigned int localUdpPorta = 4500;
 unsigned int localUdpPortaRasp = 10000;
-const char* ssid = "SARKISTEL";
-const char* senha = "479999351";
-char mensagemEntradaMacBro[260];  
+const char* ssid = "Familia Sarkis";
+const char* senha = "47-999-935-1";
+char mensagemEntradaMacBro[255];  
 char mensagemIndentificaPessoa[8];
 String converteMAC, recebeMACConv;
 
 WiFiUDP Udp;
-IPAddress broadcastIp(192, 168, 0, 255);
+IPAddress broadcastIp(192, 168, 1, 255);
 IPAddress broadcastIpRasp(192, 168, 43, 65);
 
 void setup() {
@@ -179,7 +179,22 @@ void recebeUDP() {
       }
     }
     digitalWrite(pinoLEDRecBro, LOW);
+    String mensagemMAC = String(mensagemEntradaMacBro);
+    sepVetorStr(mensagemMAC);
     enviaMacParaRasp();
+  }
+}
+
+void sepVetorStr(String recebeValor){
+  
+  String vetorSep[20];
+  String nome;
+  int i=0;
+  char c;
+  vetorSep[20]=recebeValor;
+  for(i; i<=vetorSep[20].length(); i++){
+    c = vetorSep[20].charAt(i);
+    Serial.println(c);
   }
 }
 
