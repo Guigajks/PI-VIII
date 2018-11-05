@@ -17,14 +17,15 @@ long intParaZerarVar=6000; //Tempo em ms do intervalo a ser executado
 unsigned long currentMillis;
 unsigned int localUdpPorta = 4500;
 unsigned int localUdpPortaRasp = 10000;
-const char* ssid = "Familia Sarkis";
+const char* ssid = "SpeedRun WiFi";
 const char* senha = "47-999-935-1";
 char mensagemEntradaMacBro[255];  
 char mensagemIndentificaPessoa[8];
 String converteMAC, recebeMACConv;
 
+
 WiFiUDP Udp;
-IPAddress broadcastIp(192, 168, 1, 255);
+IPAddress broadcastIp(192, 168, 43, 255);
 IPAddress broadcastIpRasp(192, 168, 43, 65);
 
 void setup() {
@@ -187,16 +188,23 @@ void recebeUDP() {
 
 void sepVetorStr(String recebeValor){
   
-  String vetorSep[20];
-  String nome;
-  int i=0;
-  char c;
-  vetorSep[20]=recebeValor;
-  for(i; i<=vetorSep[20].length(); i++){
-    c = vetorSep[20].charAt(i);
-    Serial.println(c);
-  }
+  Serial.println(recebeValor.substring(0,3));
+  Serial.println(recebeValor.substring(3,20));
+//A função abaixo faz a mesma coisa que o método substring  
+//  int i=0;
+//  String come = "";
+//  String fin= "";
+//  for(i; i<recebeValor.length() && i<3; i++){
+//    come += recebeValor.charAt(i);
+//  }
+//  for(i=3; i<recebeValor.length(); i++){
+//    fin += recebeValor.charAt(i);
+//  }  
+//   Serial.println(come);
+//   Serial.println(fin);
 }
+
+
 
 void loop() {
   
