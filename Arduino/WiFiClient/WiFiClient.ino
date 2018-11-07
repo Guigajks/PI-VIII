@@ -4,8 +4,13 @@ const char* ssid     = "";
 const char* password = "";
 
 const char* host = "192.168.0.106";
+const int httpPort = 10000;
 
-void scaneiaRede(int numeroSSID) {
+bool pareado = false;
+
+WiFiClient client;
+
+String scaneiaRede(int numeroSSID) {
   String retorno = "";
 
   int i = 0;
@@ -27,6 +32,11 @@ void scaneiaRede(int numeroSSID) {
   return retorno;
 }
 
+bool conectar(char* host, int porta) {
+  pareado = client.connect(host, porta); 
+  return pareado;
+} 
+
 void setup() {
   Serial.begin(115200);
 
@@ -43,23 +53,30 @@ void setup() {
 void loop() {
 
   // Use WiFiClient class to create TCP connections
-  WiFiClient client;
-  const int httpPort = 5000;
-  if (!client.connect(host, httpPort)) {
-    Serial.println("connection failed");
-    return;
+
+  if (!pareado) {
+    pareado = conectar(host, httpPort);
   }
+  else{
+    client.print(WiFi.macAddress() + ">" + scaneiaRede(WiFi.scanNetworks()));
+    while (client.available() == 0) {
+      if (millis() - timeout > 5000) {
+        Serial.println(">>> Client Timeout !");
+        client.stop();
+        return;
+      }
+    }
+
+  }
+  // if (!client.connect(host, httpPort)) {
+  //   Serial.println("connection failed");
+  //   return;
+  // }
   
   // This will send the request to the server
-  client.print(WiFi.macAddress() + ">" + scaneiaRede(WiFi.scanNetworks()));
-  unsigned long timeout = millis();
-  while (client.available() == 0) {
-    if (millis() - timeout > 5000) {
-      Serial.println(">>> Client Timeout !");
-      client.stop();
-      return;
-    }
-  }
+  
+  // unsigned long timeout = millis();
+
   
   Serial.println();
   Serial.println("closing connection");
