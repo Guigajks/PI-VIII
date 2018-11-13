@@ -17,16 +17,28 @@ long intParaZerarVar=6000; //Tempo em ms do intervalo a ser executado
 unsigned long currentMillis;
 unsigned int localUdpPorta = 4500;
 unsigned int localUdpPortaRasp = 10000;
-const char* ssid = "SpeedRun WiFi";
-const char* senha = "47-999-935-1";
+const char* ssid = "SARKISTEL";
+const char* senha = "479999351";
 char mensagemEntradaMacBro[255];  
 char mensagemIndentificaPessoa[8];
 String converteMAC, recebeMACConv;
 
 
 WiFiUDP Udp;
-IPAddress broadcastIp(192, 168, 43, 255);
+IPAddress broadcastIp(192, 168, 0, 255);
 IPAddress broadcastIpRasp(192, 168, 43, 65);
+
+typedef struct lista{
+  String macAddr = "";
+}Lista;
+
+struct celula{
+  Lista *conteudo;
+  struct celula*ant;
+  struct celula*prox;
+};
+typedef struct celula cel;
+
 
 void setup() {
   
@@ -44,6 +56,76 @@ void setup() {
   conectarRede(WiFi.scanNetworks());
   Udp.begin(localUdpPorta);
   Udp.begin(localUdpPortaRasp);
+}
+
+//Insere no início da lista.
+
+void insereInicio(cel**lst, Lista *p){
+  cel *nova;
+  nova=(cel*)malloc(sizeof(cel*));
+  nova->conteudo=p;
+  nova->prox=(*lst);
+  nova->prox=(*lst)->prox;
+  (*lst)->prox=nova;
+  if(nova->prox != NULL){
+    nova->prox->ant=nova;
+  }
+}
+
+void deleta(cel **lst, Lista *r){ 
+  
+  cel *p;
+  p=(*lst);
+  if((*lst)->prox=NULL){
+  }
+  else{    
+    while((p != NULL) && (p->conteudo != r)){
+      p=p->prox;
+    }
+    if (p == NULL){
+      return;//Lista vazia
+    }
+    if(p->prox != NULL){
+      p->prox->ant = p->ant;
+      p->ant->prox = p->prox;
+      free(p);
+      Serial.println("Deletei!");
+    }
+  }
+}
+
+void imprime(cel*lst){
+  cel*p;
+  p=lst->prox;
+  while(p != NULL){
+    Serial.printf("Print da lista: %s", p->conteudo->macAddr.c_str());
+    Serial.println("\n");
+    p=p->prox;
+  }
+}
+
+void sepVetorStr(cel*lst){
+  
+  cel*p;
+  p=lst->prox;
+  while(p != NULL){
+    p=p->prox;
+//    deleta(&lst, p);
+  }
+    Serial.println((p->conteudo->macAddr).substring(0,3));
+    Serial.println((p->conteudo->macAddr).substring(3,20));
+//A função abaixo faz a mesma coisa que o método substring  
+//  int i=0;
+//  String come = "";
+//  String fin= "";
+//  for(i; i<recebeValor.length() && i<3; i++){
+//    come += recebeValor.charAt(i);
+//  }
+//  for(i=3; i<recebeValor.length(); i++){
+//    fin += recebeValor.charAt(i);
+//  }  
+//   Serial.println(come);
+//   Serial.println(fin);
 }
 
 void zeraVariavel(){
@@ -171,8 +253,8 @@ void recebeUDP() {
     int leitura = Udp.read(mensagemEntradaMacBro, 255);
     if (leitura > 0) {
       mensagemEntradaMacBro[leitura] = 0;
-      Serial.println("Este MAC é do Broadcast: ");
-      Serial.println(mensagemEntradaMacBro);
+      //Serial.println("Este MAC é do Broadcast: ");
+      //Serial.println(mensagemEntradaMacBro);
       int i = 0;
       while (i < 30000) {
         digitalWrite(pinoLEDRecBro, HIGH);
@@ -181,30 +263,21 @@ void recebeUDP() {
     }
     digitalWrite(pinoLEDRecBro, LOW);
     String mensagemMAC = String(mensagemEntradaMacBro);
-    sepVetorStr(mensagemMAC);
-    enviaMacParaRasp();
+    cel*lst;
+    lst=(cel*)malloc(sizeof(cel*));
+    lst->prox=NULL;
+    lst->ant=NULL;
+    lst->conteudo=0;
+
+    Lista mac;
+    mac.macAddr=mensagemMAC;
+    insereInicio(&lst, &mac);
+    //sepVetorStr(lst);
+    imprime(lst);
+    deleta(&lst, &mac);
+    //enviaMacParaRasp();
   }
 }
-
-void sepVetorStr(String recebeValor){
-  
-  Serial.println(recebeValor.substring(0,3));
-  Serial.println(recebeValor.substring(3,20));
-//A função abaixo faz a mesma coisa que o método substring  
-//  int i=0;
-//  String come = "";
-//  String fin= "";
-//  for(i; i<recebeValor.length() && i<3; i++){
-//    come += recebeValor.charAt(i);
-//  }
-//  for(i=3; i<recebeValor.length(); i++){
-//    fin += recebeValor.charAt(i);
-//  }  
-//   Serial.println(come);
-//   Serial.println(fin);
-}
-
-
 
 void loop() {
   
@@ -213,6 +286,6 @@ void loop() {
   WiFi.softAP("A1P1");
   sensorPresenca(digitalRead(pinoSensorInf));
   //scaneiaRede(WiFi.scanNetworks());
-  recMacDaRasp();
+  //recMacDaRasp();
   recebeUDP();
 }
