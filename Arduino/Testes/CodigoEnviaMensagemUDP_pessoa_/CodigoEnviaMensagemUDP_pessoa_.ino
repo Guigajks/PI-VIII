@@ -3,8 +3,8 @@
     Referências: https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/udp-examples.html
 
 */
-#include "ESP8266WiFi.h"
-#include "WiFiUdp.h"
+#include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
 #define pinoLEDRecBro D6
 #define pinoLEDEnvBro D7
 
@@ -12,14 +12,13 @@ WiFiUDP Udp;
 unsigned int localUdpPorta = 4500;
 char mensagemEntrada[255];
 char convMeuMAC[21];
-const char* ssid = "SpeedRun WiFi";
+const char* ssid = "familia sarkis";
 const char* senha = "47-999-935-1";
 
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP("P1.");
+  WiFi.softAP("P2.");
   Serial.println();
   pinMode(pinoLEDEnvBro, OUTPUT);
   pinMode(pinoLEDRecBro, OUTPUT);
@@ -41,7 +40,7 @@ void conectarRede(int numeroSSID) {
     //Serial.println("IP Consebido a ESP: ");
     Serial.printf("Meu IP: %s\n", WiFi.localIP().toString().c_str());
     Serial.printf("Meu MAC Address: %s\n", WiFi.macAddress().c_str());
-    meuMAC = "P1." + WiFi.macAddress();
+    meuMAC = "P2." + WiFi.macAddress();
     meuMAC.toCharArray(convMeuMAC, 21);
   }
 }
@@ -82,6 +81,6 @@ void recebeUDP() {
 
 void loop() {
   WiFi.mode(WIFI_STA);
-  WiFi.softAP("P1.");
+  WiFi.softAP("P2.");
   recebeUDP();
 }
