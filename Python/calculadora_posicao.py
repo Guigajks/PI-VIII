@@ -5,12 +5,12 @@ import numpy as np
 import math
 
 def retorna_posicao(nome_rede):
-    if nome_rede == 'A0P0':
+    if nome_rede == 'A1P1':
         return (0,0)
-    elif nome_rede == 'A0P1':
-        return (0,2)
-    elif nome_rede == 'A0P2':
+    elif nome_rede == 'A1P2':
         return (2,0)
+    elif nome_rede == 'A1P3':
+        return (0,2)
 
 #função que calcula o raio em metros usando os parâmetros da frequência da onda e a potência recebida. free space loss
 def calcula_raio(freqMHZ,db):
@@ -21,9 +21,12 @@ def calcula_raio(freqMHZ,db):
 #a função consiste em resolver o sistema de equações obtido através das posições dos sensores e suas distâncias   
 def trilateracao(coor):
     # [0][0] posicao x, [0][1] posicao y e [1] raio
-    a = coor[0]
-    c = coor[1]
-    b = coor[2]
+    a = list(coor[0])
+    b = list(coor[1])
+    c = list(coor[2])
+    print(a)
+    print(b)
+    print(c)
     #começando a mudar parte 2.0 (tratamento de erro)
     ok = False
     #errox é a quantidade de iterações no loop de ajuste da variavel "x"
