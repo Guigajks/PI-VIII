@@ -17,15 +17,6 @@ LISTENING_PORT = 10000
 BUFFER_SIZE = 1024
 WEBSOCKET = "ws://localhost:8000/ws/"
 
-re_door = re.compile(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$') # 20:e8:17:05:d7:69
-re_data = re.compile(r"""^
-	# 20:e8:17:05:d7:69>A1P1-50;A1P2-48.05;A1P3-46.05
-	([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2}) #20:e8:17:05:d7:69
-	> #>
-	(\w+\-((\d){2,3}((\.)(\d){2,3})?);){2} #A1P1-50;A1P2-48.05;
-	(\w+\-((\d){2,3}((\.)(\d){2,3})?)) #A1P3-46.05
-""")
-
 def parse_data(data):
 	print(data)
 	# data = '20:e8:17:05:d7:69>A1P1-50;A1P2-48.05;A1P3-46.05'
@@ -48,58 +39,28 @@ def listen_UDP():
 	sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	sock.bind((LISTENING_IP, LISTENING_PORT))
 	
-	ws = websocket.create_connection(WEBSOCKET)
+	# ws = websocket.create_connection(WEBSOCKET)
 
 	while True:
 		data, address = sock.recvfrom(BUFFER_SIZE)
 		data = data.decode('utf-8')
-		print ("UDP Messsage from address: ", address)
-		print ("Message: ", data)
+		# print ("UDP Messsage from address: ", address)
+		# print ("Message: ", data)
 		try:
-			if re_door.search(data):
+			if data.find('>') != -1:
+				data = parse_data(data)
+				# if ws.connected:
+				# 	ws.send(data)
+				# else:
+				# 	ws.connect(WEBSOCKET)
+				# 	ws.send(data)
+			else:
 				sock.sendto('ok', address)
 				# TODO
 					# request
-			elif re_data.search(data):
-				data = parse_data(data)
-				if ws.connected:
-					ws.send(data)
-				else:
-					ws.connect(WEBSOCKET)
-					ws.send(data)
 		except Exception as ex:
 			print(ex)
 			# traceback.print_exc()
-
-# def listen_TCP():
-# 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IPv4, TCP
-# 	sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-# 	sock.bind((LISTENING_IP, LISTENING_PORT))
-
-# 	# websocket.enableTrace(True) 
-
-# 	while True:
-# 		sock.listen(1)
-# 		conn, address = sock.accept()
-# 		print ("TCP connection from", address)
-		
-# 		data = conn.recv(BUFFER_SIZE)
-# 		if data:
-# 			try:
-# 				# print(data.decode('ascii'))
-# 				tst = parse_data(data.decode('utf-8'))
-				
-# 				print(tst)
-# 				# sock.send(b'ok')
-# 				ws.send(tst)
-# 			except Exception as ex:
-# 				print(ex)
-# 				# traceback.print_exc()
-# 			finally:
-# 				conn.send(b'ok')
-# 				conn.close()
-# 	# ws.close()
-
 
 if __name__ == "__main__":
 	Thread_UDP = Thread(target=listen_UDP)

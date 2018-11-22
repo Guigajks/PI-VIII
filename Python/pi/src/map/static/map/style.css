@@ -1,0 +1,9 @@
+body {
+    width: 100vw;
+}
+
+.canvas {
+    background-image: url('./pi.jpeg');
+    width: 680px;
+    height: 406px;
+}
