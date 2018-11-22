@@ -15,12 +15,11 @@
 
 long previousMillis = 0; //Variável de controle do tempo
 long intParaZerarVar = 6000; //Tempo em ms do intervalo a ser executado
-long tempo = 5000;
 unsigned long currentMillis;
 unsigned int localUdpPorta = 4500;
 unsigned int localUdpPortaRasp = 10000;
-const char* ssid = "familia sarkis";
-const char* senha = "47-999-935-1";
+const char* ssid = "virus";
+const char* senha = "12345678";
 char mensagemEntradaMacBro[255];
 char convMeuMAC[21];
 String converteMAC, recebeMACConv, mensagemMAC;
@@ -30,7 +29,7 @@ String nomeRede = "";
 
 WiFiUDP Udp;
 IPAddress broadcastIp(192, 168, 0, 255);
-IPAddress broadcastIpRasp(192, 168, 43, 65);
+IPAddress broadcastIpRasp(192, 168, 0, 100);
 
 
 void setup() {
@@ -46,9 +45,9 @@ void setup() {
   pinMode(pinoLEDEnvRas, OUTPUT);
   pinMode(pinoLEDRecRas, OUTPUT);
   pinMode(pinoSensorInf, INPUT);
-  conectarRede(WiFi.scanNetworks());
   Udp.begin(localUdpPorta);
   Udp.begin(localUdpPortaRasp);
+  conectarRede();
 }
 
 
@@ -85,34 +84,28 @@ void scaneiaRede(int numeroSSID) { // Ainda não estou usando para nada essa fun
 
   int i = 0;
   //String nomeRede = "";
-  String com = "";
   int menorRede = -1000;
   while (i < numeroSSID) {
     if (WiFi.RSSI(i) >= menorRede) {
       menorRede = WiFi.RSSI(i);
       nomeRede = WiFi.SSID(i);
-      com = mensagemMAC.substring(0, 3);
-      fim = mensagemMAC.substring(3, 20);
-      if (com == nomeRede) {
-        enviaMacParaRasp();
-      }
     }
     i = i + 1;
-    //Serial.println(WiFi.SSID(i).c_str());
+    Serial.println(WiFi.SSID(i).c_str());
   }
   Serial.printf("Rede com menor distância foi: %s, Distância em dBs: (%d)\n", nomeRede.c_str() , menorRede);
 }
 
 void sensorPresenca(int recebeValor) {
- 
+
   if (recebeValor == 0) {
     digitalWrite(pinoLEDSenInf, HIGH);
-    scaneiaRede(WiFi.scanNetworks());
+    scaneiaRede(WiFi.scanNetworks(false, false, 3, NULL));
     enviaUDP();
   } digitalWrite(pinoLEDSenInf, LOW);
 }
 
-void conectarRede(int numeroSSID) {
+void conectarRede() {
 
   int i = 0;
   WiFi.mode(WIFI_STA);
@@ -142,18 +135,19 @@ void enviaMacParaRasp() {
     Udp.write(convMeuMAC);
     Udp.endPacket();
     if (Udp.endPacket() == true) {
+      Serial.println("Enviado!");
+      Serial.printf("Rede com menor distância foi: %s\n", nomeRede.c_str());
+      Serial.println(convMeuMAC);
+      fim="a";
       int i = 0;
       while (i < 30000) {
         digitalWrite(pinoLEDEnvRas, HIGH);
         i = i + 1;
       }
-
-      Serial.println("Enviado!");
-      Serial.printf("Rede com menor distância foi: %s\n", nomeRede.c_str());
-      Serial.println(convMeuMAC);
     }
     digitalWrite(pinoLEDEnvRas, LOW);
   }
+  recMacDaRasp();
 }
 
 void recMacDaRasp() {
@@ -206,14 +200,15 @@ void enviaUDP() {
 void recebeUDP() {
 
   int tamanhoPacote = Udp.parsePacket();
+  String com = "";
   if (tamanhoPacote) {
     //Recebe pacotes de entrada para quem responder o Broadcast
     //Serial.printf("Recebe %d bytes de %s, porta %d \n", tamanhoPacote, Udp.remoteIP().toString().c_str(), Udp.remotePort());
     int leitura = Udp.read(mensagemEntradaMacBro, 255);
     if (leitura > 0) {
       mensagemEntradaMacBro[leitura] = 0;
-      //Serial.println("Este MAC é do Broadcast: ");
-      //Serial.println(mensagemEntradaMacBro);
+      Serial.println("Este é o mac recebido");
+      Serial.println(mensagemEntradaMacBro);
       int i = 0;
       while (i < 30000) {
         digitalWrite(pinoLEDRecBro, HIGH);
@@ -222,6 +217,11 @@ void recebeUDP() {
     }
     digitalWrite(pinoLEDRecBro, LOW);
     mensagemMAC = String(mensagemEntradaMacBro);
+    com = mensagemMAC.substring(0, 2);
+    fim = mensagemMAC.substring(2, 20);
+    if (com == nomeRede) {
+      enviaMacParaRasp();
+    }
   }
 }
 
@@ -232,5 +232,4 @@ void loop() {
   WiFi.softAP("A1P1");
   sensorPresenca(digitalRead(pinoSensorInf));
   recebeUDP();
-  //recMacDaRasp();
 }

@@ -1,7 +1,6 @@
 /*  Desenvolvido por Alessandro Kantousian
     Data 13/09/2018
     Referências: https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/udp-examples.html
-
 */
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
@@ -12,13 +11,13 @@ WiFiUDP Udp;
 unsigned int localUdpPorta = 4500;
 char mensagemEntrada[255];
 char convMeuMAC[21];
-const char* ssid = "familia sarkis";
-const char* senha = "47-999-935-1";
+const char* ssid = "virus";
+const char* senha = "12345678";
 
 void setup() {
   Serial.begin(115200);
-  WiFi.mode(WIFI_STA);
-  WiFi.softAP("P2.");
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAP("P1");
   Serial.println();
   pinMode(pinoLEDEnvBro, OUTPUT);
   pinMode(pinoLEDRecBro, OUTPUT);
@@ -29,7 +28,7 @@ void setup() {
 void conectarRede(int numeroSSID) {
   int i = 0;
   String meuMAC = "";
-  WiFi.mode(WIFI_STA);
+  WiFi.mode(WIFI_AP_STA);
   WiFi.begin(ssid, senha);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -40,7 +39,7 @@ void conectarRede(int numeroSSID) {
     //Serial.println("IP Consebido a ESP: ");
     Serial.printf("Meu IP: %s\n", WiFi.localIP().toString().c_str());
     Serial.printf("Meu MAC Address: %s\n", WiFi.macAddress().c_str());
-    meuMAC = "P2." + WiFi.macAddress();
+    meuMAC = "P1" + WiFi.macAddress();
     meuMAC.toCharArray(convMeuMAC, 21);
   }
 }
@@ -80,7 +79,7 @@ void recebeUDP() {
 }
 
 void loop() {
-  WiFi.mode(WIFI_STA);
-  WiFi.softAP("P2.");
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAP("P1");
   recebeUDP();
 }
