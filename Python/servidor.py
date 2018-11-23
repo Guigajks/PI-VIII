@@ -4,6 +4,7 @@ from threading import Thread
 from netifaces import ifaddresses, AF_INET
 import socket 
 import websocket
+import requests
 
 import calculadora_posicao as cp
 import json
@@ -55,7 +56,11 @@ def listen_UDP():
 				# 	ws.connect(WEBSOCKET)
 				# 	ws.send(data)
 			else:
-				sock.sendto('ok', address)
+				if len(data) == 17:
+					r = requests.get(f'http://localhost:8000/map/{data}')
+					sock.sendto(r.content, address)
+				else:
+					print(data)
 				# TODO
 					# request
 		except Exception as ex:

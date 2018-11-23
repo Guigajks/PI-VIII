@@ -14,6 +14,9 @@ char convMeuMAC[21];
 const char* ssid = "virus";
 const char* senha = "12345678";
 
+const char* host = "192.168.0.104";
+const int httpPort = 10000;
+
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_AP_STA);
@@ -78,8 +81,42 @@ void recebeUDP() {
   }
 }
 
+String scaneiaRede(int numeroSSID) {
+  String retorno = "";
+  
+  for (int i = 0; i < numeroSSID; i++) {
+//    if (
+//      WiFi.SSID(i).length() == 4
+//      && WiFi.SSID(i).charAt(0) == 'A'
+//      && WiFi.SSID(i).charAt(2) == 'P'
+//      && isDigit(WiFi.SSID(i).charAt(1))
+//      && isDigit(WiFi.SSID(i).charAt(3))
+//      || WiFi.SSID(i) == "SARKISTEL"
+//    ) {
+//      retorno += WiFi.SSID(i) + String(WiFi.RSSI(i), DEC) + ";";
+//    }
+//    else {
+//      continue;
+//    }
+        if (WiFi.SSID(i) == "virus") {
+          return String(WiFi.RSSI(i), DEC);
+        }
+  }
+    if (retorno != "")
+      retorno = retorno.substring(0, retorno.length() - 1);
+
+  return retorno;
+}
+
 void loop() {
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP("P1");
   recebeUDP();
+  
+  Udp.beginPacket(host, httpPort);
+  String envio = /*WiFi.macAddress() + ">" +*/ scaneiaRede(WiFi.scanNetworks(false, false, 3, NULL));
+  Serial.println(envio);
+  Udp.write(envio.c_str(), envio.length());
+  Udp.endPacket();  
+  
 }

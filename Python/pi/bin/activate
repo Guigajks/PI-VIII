@@ -40,7 +40,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/guilherme/Documents/Python/pi"
+VIRTUAL_ENV="/home/guilherme/Documents/Senac/PI-VIII/Python/pi"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
