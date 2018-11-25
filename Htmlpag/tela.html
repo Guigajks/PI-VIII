@@ -1,0 +1,137 @@
+<style>
+    #myCanvas {
+        /*width: 700px;
+        height: 400px;*/
+        background-color: rgb(252, 252, 252);
+        float: left;
+        border:20px solid black;
+    }
+    body{
+        background-color: rgb(38, 38, 39);
+        margin: none;
+        padding: none;
+        border: none;
+    }
+    div.header{
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        text-align: center;
+        height: 100px;
+        width: 100%;
+        background-color: rgb(133, 27, 231);
+        border: none;
+        /*border: 2px solid white;
+        border-bottom: 30px solid white;*/
+        padding: 0px;
+        margin-bottom: 50px;
+    }
+    h1{
+        vertical-align: middle;
+        text-align: center;
+        height: 100px;
+        display: table-cell;
+        color: beige;
+        
+        /*margin: 50px;*/
+
+    }
+    div.legendas{
+        padding: 50px;
+        color: white;
+        float: left;
+    }
+
+</style>
+
+<html>
+    <div class="header">
+    <h1>Posicao atual:</h1>
+    </div>
+    <body>
+<div>
+<canvas id="myCanvas" width="500px" height="500px"></canvas>
+</div>
+<div class="legendas">
+    <p>TEXTO PARA TESTES</p>
+    <p>TEXTO PARA TESTES</p>
+    <p>TEXTO PARA TESTES</p>
+</div>
+</body>
+</html>
+<script>
+
+var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+    //var x = 620;
+    //var y = 350;
+    var x = 300;
+    var y = 200;
+    var bw = canvas.width -20;
+    var bh = canvas.height-20;
+    var p = 10;
+    var cw = bw + (p*2) + 1;
+    var ch = bh + (p*2) + 1;
+
+
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(x, y, 15, 0, Math.PI*2);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.lineWidth = "5"
+        ctx.strokeStyle = "black"
+        ctx.stroke();
+        ctx.closePath();
+    }
+    function drawBoard(){
+        for (var k = 0; k <= bw; k += 80) {
+            ctx.moveTo(0.5 + k + p, p);
+            ctx.lineTo(0.5 + k + p, bh + p);
+        }
+
+
+        for (var k = 0; k <= bh; k += 80) {
+            ctx.moveTo(p, 0.5 + k + p);
+            ctx.lineTo(bw + p, 0.5 + k + p);
+        }
+
+        ctx.lineWidth = "1"
+        ctx.stroke();
+        }
+    
+    function drawDevices(a,b){
+        ctx.beginPath();
+        ctx.arc(a, b, 20, 0, Math.PI*2);
+        ctx.fillStyle = "red";
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width , canvas.height);
+        drawBoard()
+        drawDevices(20,20)
+        drawDevices(20,480)
+        drawDevices(480,20)
+        //ctx.drawImage(background,0,0); 
+        drawBall();
+        /* x += dx;
+        y += dy; */
+    }
+    setInterval(draw, 1000);
+
+   /*  var canvas = document.getElementById("myCanvas"),
+    ctx = canvas.getContext("2d"); */
+
+/* canvas.width = 680;
+canvas.height = 406; */
+
+/* var background = new Image();
+background.src = "pi.jpeg"; */
+
+/* background.onload = function(){
+    ctx.drawImage(background,0,0);   
+} */
+
+</script>
