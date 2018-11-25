@@ -4,55 +4,41 @@
 */
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
+
 #define pinoLEDRecBro D6
 #define pinoLEDEnvBro D7
 
 WiFiUDP Udp;
 unsigned int localUdpPorta = 4500;
-char mensagemEntrada[255];
-char convMeuMAC[21];
-const char* ssid = "virus";
-const char* senha = "12345678";
 
-const char* host = "192.168.0.104";
-const int httpPort = 10000;
-
+bool continuar = true;
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP("P1");
-  Serial.println();
+
   pinMode(pinoLEDEnvBro, OUTPUT);
   pinMode(pinoLEDRecBro, OUTPUT);
-  conectarRede(WiFi.scanNetworks());
+
+  WiFi.begin("virus", "12345678");
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+Serial.println(WiFi.localIP());
   Udp.begin(localUdpPorta);
 }
 
-void conectarRede(int numeroSSID) {
-  int i = 0;
-  String meuMAC = "";
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.begin(ssid, senha);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    //Serial.print(".");
-  } if (WiFi.status() == WL_CONNECTED) {
-    //Serial.println("Conectado na Rede Pela Web: ");
-    //Serial.println(WiFi.SSID());
-    //Serial.println("IP Consebido a ESP: ");
-    Serial.printf("Meu IP: %s\n", WiFi.localIP().toString().c_str());
-    Serial.printf("Meu MAC Address: %s\n", WiFi.macAddress().c_str());
-    meuMAC = "P1" + WiFi.macAddress();
-    meuMAC.toCharArray(convMeuMAC, 21);
-  }
-}
-
-void enviaUDP() {
+void enviaUDP(String envio) {
   //Envia Solicitação de MAC
   Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-  Udp.write(convMeuMAC);
-  Udp.endPacket();
-  if (Udp.endPacket() == true) {
+  Serial.println(envio);
+  Serial.println(Udp.remoteIP());
+  Serial.println(Udp.remotePort());
+  Udp.write(envio.c_str(), envio.length());
+
+  if (Udp.endPacket()) {
     int i = 0;
     while (i < 30000) {
       digitalWrite(pinoLEDEnvBro, HIGH);
@@ -64,59 +50,132 @@ void enviaUDP() {
 void recebeUDP() {
   int tamanhoPacote = Udp.parsePacket();
   if (tamanhoPacote) {
+
     //Recebe pacotes de entrada
     //Serial.printf("Recebe %d bytes de %s, porta %d \n", tamanhoPacote, Udp.remoteIP().toString().c_str(), Udp.remotePort());
-    int leitura = Udp.read(mensagemEntrada, 255);
+    char c[tamanhoPacote];
+    int leitura = Udp.read(c, tamanhoPacote);
     if (leitura > 0) {
-      mensagemEntrada[leitura] = 0;
+      c[leitura] = 0;
       int i = 0;
       while (i < 30000) {
         digitalWrite(pinoLEDRecBro, HIGH);
         i = i + 1;
       }
     }
-    //Serial.printf("O pacote UDP contem: %s\n", mensagemEntrada);
+    Serial.printf("O pacote UDP contem: %s\n", c);
+    String envio;
+    if (String(c) == "quem"){
+      envio = "P1" + WiFi.macAddress() + WiFi.localIP().toString(); 
+      enviaUDP(envio);
+    }
+    else if (String(c) == "ok") {
+      envio = WiFi.macAddress();
+      continuar = true;
+      enviaUDP(envio);
+    }
+    else if (String(c) == "okn") {
+      continuar = false;
+    }
+    else {
+      Serial.println("Msg errada: " + String(c));
+    }
     digitalWrite(pinoLEDRecBro, LOW);
-    enviaUDP();
+    
   }
 }
 
+//void recebeUDP2() {
+//    Serial.println("la");
+//  int tamanhoPacote = Udp.parsePacket();
+//  if (tamanhoPacote) {
+//
+//    //Recebe pacotes de entrada
+//    //Serial.printf("Recebe %d bytes de %s, porta %d \n", tamanhoPacote, Udp.remoteIP().toString().c_str(), Udp.remotePort());
+//    char c[tamanhoPacote];
+//    int leitura = Udp.read(c, tamanhoPacote);
+//    if (leitura > 0) {
+//      c[leitura] = 0;
+//      int i = 0;
+//      while (i < 30000) {
+//        i = i + 1;
+//      }
+//    }
+//    Serial.printf("O pacote UDP contem: %s\n", c);
+//    digitalWrite(pinoLEDRecBro, LOW);
+//    enviaUDP(WiFi.macAddress());
+//  }
+//}
+
 String scaneiaRede(int numeroSSID) {
   String retorno = "";
-  
+  int i = 0;
   for (int i = 0; i < numeroSSID; i++) {
-//    if (
-//      WiFi.SSID(i).length() == 4
-//      && WiFi.SSID(i).charAt(0) == 'A'
-//      && WiFi.SSID(i).charAt(2) == 'P'
-//      && isDigit(WiFi.SSID(i).charAt(1))
-//      && isDigit(WiFi.SSID(i).charAt(3))
-//      || WiFi.SSID(i) == "SARKISTEL"
-//    ) {
-//      retorno += WiFi.SSID(i) + String(WiFi.RSSI(i), DEC) + ";";
-//    }
-//    else {
-//      continue;
-//    }
-        if (WiFi.SSID(i) == "virus") {
-          return String(WiFi.RSSI(i), DEC);
-        }
+    //    if (
+    //      WiFi.SSID(i).length() == 4
+    //      && WiFi.SSID(i).charAt(0) == 'A'
+    //      && WiFi.SSID(i).charAt(2) == 'P'
+    //      && isDigit(WiFi.SSID(i).charAt(1))
+    //      && isDigit(WiFi.SSID(i).charAt(3))
+    //      || WiFi.SSID(i) == "SARKISTEL"
+    //    ) {
+    //        i += 1;
+    //        retorno += WiFi.SSID(i) + String(WiFi.RSSI(i), DEC) + ";";
+    //        if (i == 3) {
+    //          return retorno.substring(0, retorno.length() - 1);
+    //        }
+    //    }
+    //    else {
+    //      continue;
+    //    }
+    if (WiFi.SSID(i) == "A1P2") {
+      return String(WiFi.RSSI(i), DEC);
+    }
   }
-    if (retorno != "")
-      retorno = retorno.substring(0, retorno.length() - 1);
+  if (retorno != "")
+    retorno = retorno.substring(0, retorno.length() - 1);
 
   return retorno;
 }
 
 void loop() {
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP("P1");
-  recebeUDP();
-  
-  Udp.beginPacket(host, httpPort);
-  String envio = /*WiFi.macAddress() + ">" +*/ scaneiaRede(WiFi.scanNetworks(false, false, 3, NULL));
-  Serial.println(envio);
-  Udp.write(envio.c_str(), envio.length());
-  Udp.endPacket();  
-  
+  //  WiFi.mode(WIFI_AP_STA);
+  //  WiFi.softAP("P1");
+//  recebeUDP();
+
+  if (continuar) {
+    unsigned long timeT = millis();
+    while (millis() - timeT < 9000) {
+      Serial.println(millis() - timeT);
+      Udp.beginPacket("192.168.0.104", 10000);
+      String envio = /*WiFi.macAddress() + ">" +*/ scaneiaRede(WiFi.scanNetworks(false, false, 3, NULL));
+      Serial.println(envio);
+      Udp.write(envio.c_str(), envio.length());
+      Udp.endPacket();
+      Udp.flush();
+    }
+//    continuar = false;
+  }
+
+//  int tamanhoPacote = Udp.parsePacket();
+//  if (tamanhoPacote) {
+//    Serial.println("Aqui");
+//    char c[tamanhoPacote];
+//    int leitura = Udp.read(c, tamanhoPacote);
+//    if (leitura > 0) {
+//      c[leitura] = 0;
+//      Serial.println("C:" + String(c));
+//    }
+//    if (String(c) == "ok") {
+//      Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+//      Udp.write(WiFi.macAddress().c_str(), WiFi.macAddress().length());
+//      Udp.endPacket();
+//      Udp.flush();
+//      continuar = true;
+//    }
+//    else {
+//      continuar = false;
+//    }
+//  }
+
 }
