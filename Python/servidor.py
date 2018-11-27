@@ -40,29 +40,35 @@ def listen_UDP():
 	sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	sock.bind((LISTENING_IP, LISTENING_PORT))
 	
-	# ws = websocket.create_connection(WEBSOCKET)
+	ws = websocket.create_connection(WEBSOCKET)
 
 	while True:
-		data, address = sock.recvfrom(BUFFER_SIZE)
+		data, address = sock.recvfrom(50)
 		data = data.decode('utf-8')
 		# print ("UDP Messsage from address: ", address)
 		# print ("Message: ", data)
 		try:
 			if data.find('>') != -1:
 				data = parse_data(data)
-				# if ws.connected:
-				# 	ws.send(data)
-				# else:
-				# 	ws.connect(WEBSOCKET)
-				# 	ws.send(data)
+				if ws.connected:
+					ws.send(data)
+				else:
+					ws.connect(WEBSOCKET)
+					ws.send(data)
 			else:
 				if len(data) == 17:
 					r = requests.get(f'http://localhost:8000/map/{data}')
-					sock.sendto(r.content, address)
+					print(r.content)
+					if r.content == b"ok":
+						sock.sendto(r.content, address)
+					elif r.content == "not ok":
+						if ws.connected:
+							ws.send(r.content)
+						else:
+							ws = websocket.create_connection(WEBSOCKET)
+							ws.send(r.content)
 				else:
-					print(data)
-				# TODO
-					# request
+					continue
 		except Exception as ex:
 			print(ex)
 			# traceback.print_exc()

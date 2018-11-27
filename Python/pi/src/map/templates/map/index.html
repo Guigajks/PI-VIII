@@ -12,54 +12,109 @@
 </head>
 
 <body>
-    <div class="container-fluid">
+    <div class="container-fluid body">
+        <div class="header">
+            <h1>Posicao atual:</h1>
+        </div>
         <div class="row">
-            <div class="col-10">
+            <div class="col-8">
                 <div class="row justify-content-center">
                     <div class="canvas">
-                        <canvas id="myCanvas" width="480" height="320"></canvas>
+                        <canvas id="myCanvas" width="500px" height="500px">></canvas>
                     </div>
                 </div>
             </div>
             <div class="col">
-                <div class="row">
-                    <ul class="list-group"></ul>
+                <div class="row justify-content-start">
+                    <div class="legendas">
+                        <p>TEXTO PARA TESTES</p>
+                        <p>TEXTO PARA TESTES</p>
+                        <p>TEXTO PARA TESTES</p>
+                    </div>
+                    <!-- <ul class="list-group"></ul> -->
                 </div>
             </div>
         </div>
     </div>
     <script src="{% static 'map/jquery-3.3.1.min.js' %}"></script>
     <script>
-        // var roomName = {{ room_name_json }};
-
         var canvas = document.getElementById("myCanvas");
         var ctx = canvas.getContext("2d");
-        var x = 620;
-        var y = 350;
-        canvas.width = 680;
-        canvas.height = 406;
+        var px = []
+        var py = []
+        //fator de multiplicação (px para metros)
+        var fator = 250;
 
-        // var background = new Image();
-        // background.src = "pi.jpeg";
+        //variáveis da trilateração
+        var x = 1.25;
+        var y = 0.75;
 
+        //variáveis multiplicadas pelo fator
+        var posx = x * fator;
+        var posy = y * fator;
+
+        var bw = canvas.width - 20;
+        var bh = canvas.height - 20;
+        //fatores para desenhar o grid
+        var p = 10;
+        var cw = bw + (p * 2) + 1;
+        var ch = bh + (p * 2) + 1;
+
+        //condições de ajuste dos parâmetros para limites de fronteira
+        if (posx > 500) { posx = 500 }
+        if (posx < 0) { posx = 0 }
+        if (posy > 500) { posy = 500 }
+        if (posy < 0) { posy = 0 }
+
+        //função que desenha o ponto
         function drawBall() {
             ctx.beginPath();
-            ctx.arc(x, y, 15, 0, Math.PI * 2);
+            ctx.arc(posx, posy, 15, 0, Math.PI * 2);
             ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.lineWidth = "5"
+            ctx.strokeStyle = "black"
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        //função que desenha o grid
+        function drawBoard() {
+            for (var k = 0; k <= bw; k += 80) {
+                ctx.moveTo(0.5 + k + p, p);
+                ctx.lineTo(0.5 + k + p, bh + p);
+            }
+
+
+            for (var k = 0; k <= bh; k += 80) {
+                ctx.moveTo(p, 0.5 + k + p);
+                ctx.lineTo(bw + p, 0.5 + k + p);
+            }
+
+            ctx.lineWidth = "1"
+            ctx.stroke();
+        }
+
+        //função que desenha os sensores
+        function drawDevices(a, b) {
+            ctx.beginPath();
+            ctx.arc(a, b, 20, 0, Math.PI * 2);
+            ctx.fillStyle = "red";
             ctx.fill();
             ctx.closePath();
         }
 
+        //looping de desenho
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // ctx.drawImage(background,0,0); 
-            drawBall();
-            /* x += dx;
-            y += dy; */
-            // console.log('oi')
+            drawBoard()
+            drawDevices(20, 20)
+            drawDevices(20, 480)
+            drawDevices(480, 20)
+            drawBall()
         }
         // setInterval(draw, 1000);
-
+        draw()
         var chatSocket = new WebSocket(
             'ws://' + window.location.host +
             '/ws/');
@@ -67,9 +122,22 @@
         chatSocket.onmessage = function (e) {
             console.log(e)
             var data = JSON.parse(JSON.parse(e.data).message);
-            console.log(data)
-            x = Math.abs(data.trilateracao[0] * 20)
-            y = Math.abs(data.trilateracao[1] * 20)
+
+            if (data == 'not ok') {
+                document.querySelector('.legendas').innerHTML += `<p>PESSOA NÂO AUTORIZADA ENTRO NA SALA</p>`
+            } else {
+                x = Math.abs(data.trilateracao[0] )
+                y = Math.abs(data.trilateracao[1] )
+                posx = x * fator;
+                posy = y * fator;
+                console.log(x, y)
+                if (posx > 500) { posx = 500 }
+                if (posx < 0) { posx = 0 }
+                if (posy > 500) { posy = 500 }
+                if (posy < 0) { posy = 0 }
+                console.log(posx, posy)
+            }
+
 
             draw()
             // var message = data['message'];

@@ -3,9 +3,10 @@ import traceback
 from netifaces import ifaddresses, AF_INET
 import socket 
 import pandas as pd
+from functools import reduce
 
 LISTENING_IP = socket.gethostbyname(ifaddresses('wlp1s0')[AF_INET][0]['addr'])
-LISTENING_PORT = 9999
+LISTENING_PORT = 10000
 BUFFER_SIZE = 1024
 # WEBSOCKET = "ws://localhost:8000/ws/"
 
@@ -27,8 +28,13 @@ def listen_UDP():
 				print(data)
 				tst.append(int(data))
 
-				if len(tst) == 2:
+				if len(tst) == 300:
 					nome_arquivo = input('Nome do arquivo:\n')
+					
+					media = float(reduce(lambda x,y: x + y, tst)) / float(len(tst))
+					tst.append(media)
+					tst.append(float(nome_arquivo))
+
 					df[nome_arquivo] = tst
 					tst.clear()
 					
@@ -40,7 +46,7 @@ def listen_UDP():
 						sock.bind((LISTENING_IP, LISTENING_PORT))
 						continue
 					else:
-						df.to_csv('amostras.csv', index=False, encoding='utf-8') 
+						df.to_csv('amostras7.csv', index=False, encoding='utf-8') 
 						quit()
 
 		except Exception as ex:

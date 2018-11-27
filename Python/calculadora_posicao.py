@@ -9,8 +9,8 @@ def retorna_posicao(nome_rede):
         return (0,0)
     elif nome_rede == 'A1P2':
         return (2,0)
-    elif nome_rede == 'virus':
-        return (0,3.3)
+    elif nome_rede == 'A1P3':
+        return (0,2)
 
 #função que calcula o raio em metros usando os parâmetros da frequência da onda e a potência recebida. free space loss
 def calcula_raio(freqMHZ,db):
@@ -24,9 +24,6 @@ def trilateracao(coor):
     a = list(coor[0])
     b = list(coor[1])
     c = list(coor[2])
-    print(a)
-    print(b)
-    print(c)
     #começando a mudar parte 2.0 (tratamento de erro)
     ok = False
     #errox é a quantidade de iterações no loop de ajuste da variavel "x"

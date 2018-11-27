@@ -1,7 +1,6 @@
 /*  Desenvolvido por Alessandro Kantousian
     Data 13/09/2018
     Referências: https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/udp-examples.html
-
 */
 #include <QueueArray.h>
 #include <ESP8266WiFi.h>
@@ -25,11 +24,12 @@ char convMeuMAC[21];
 String converteMAC, recebeMACConv, mensagemMAC;
 String fim = "";
 String nomeRede = "";
+bool autorizado = false;
 
 
 WiFiUDP Udp;
 IPAddress broadcastIp(192, 168, 0, 255);
-IPAddress broadcastIpRasp(192, 168, 0, 100);
+IPAddress broadcastIpRasp(192, 168, 0, 104);
 
 
 void setup() {
@@ -100,7 +100,7 @@ void sensorPresenca(int recebeValor) {
 
   if (recebeValor == 0) {
     digitalWrite(pinoLEDSenInf, HIGH);
-    scaneiaRede(WiFi.scanNetworks(false, false, 3, NULL));
+    scaneiaRede(WiFi.scanNetworks(false, false, 1, NULL));
     enviaUDP();
   } digitalWrite(pinoLEDSenInf, LOW);
 }
@@ -138,7 +138,7 @@ void enviaMacParaRasp() {
       Serial.println("Enviado!");
       Serial.printf("Rede com menor distância foi: %s\n", nomeRede.c_str());
       Serial.println(convMeuMAC);
-      fim="a";
+      fim = "a";
       int i = 0;
       while (i < 30000) {
         digitalWrite(pinoLEDEnvRas, HIGH);
@@ -169,13 +169,7 @@ void recMacDaRasp() {
       Serial.println("Esse é o MAC respondido pelo Servidor: ");
       Serial.println(respostaEntradaMacRas);
       digitalWrite(pinoLEDRecRas, LOW);
-      //if(mensagemEntrada==mensagemEntradaMac){
-      //  Serial.println("Você é funcionário");
-      //}else{
-      //  Serial.println("Você não é funcionário");
-
-      //  Serial.println(mensagemEntrada);
-      //}
+  
     }
   }
 }
@@ -183,7 +177,7 @@ void recMacDaRasp() {
 void enviaUDP() {
 
   //Envia Solicitação de MAC para quem passou pelo sensor
-  char mensagemDeEnvioBro[] = "Quem é?";
+  char mensagemDeEnvioBro[] = "quem";
   Udp.beginPacket(broadcastIp, localUdpPorta);
   Udp.write(mensagemDeEnvioBro);
   Udp.endPacket();
@@ -215,10 +209,13 @@ void recebeUDP() {
         i = i + 1;
       }
     }
+    if (String(mensagemEntradaMacBro) == "ok") {
+        autorizado = true;
+    }
     digitalWrite(pinoLEDRecBro, LOW);
     mensagemMAC = String(mensagemEntradaMacBro);
     com = mensagemMAC.substring(0, 2);
-    fim = mensagemMAC.substring(2, 20);
+    fim = mensagemMAC.substring(2, 19);
     if (com == nomeRede) {
       enviaMacParaRasp();
     }
@@ -226,10 +223,26 @@ void recebeUDP() {
 }
 
 void loop() {
-
-  currentMillis = millis(); //Tempo atual em ms
-  WiFi.mode(WIFI_STA);
-  WiFi.softAP("A1P1");
-  sensorPresenca(digitalRead(pinoSensorInf));
-  recebeUDP();
+  currentMillis = millis(); 
+  if (!autorizado) {
+    //Tempo atual em ms
+    WiFi.mode(WIFI_STA);
+    WiFi.softAP("A1P1");
+    sensorPresenca(digitalRead(pinoSensorInf));
+    recebeUDP();
+  } else {
+//    unsigned long timet = millis(); 
+//    while (millis() - timet < 10000) {
+//      Serial.print(".");
+//      }
+  if ((currentMillis - previousMillis) > 10000) {
+    Serial.println("to aqui");
+    previousMillis = currentMillis;
+    Udp.beginPacket(broadcastIp, localUdpPorta);
+    Udp.write("ok", 2);
+    Udp.endPacket();
+    Udp.flush();
+  }
+    
+  }
 }
