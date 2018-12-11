@@ -1,0 +1,108 @@
+<style>
+    #myCanvas {
+        float: left;
+        border: 20px groove blue;
+    }
+
+    body {
+        background-color: rgb(38, 38, 39);
+        margin: none;
+        padding: none;
+        broder: none;
+    }
+
+    div.header {
+        height: 100px;
+        background-color: rgb(132, 9, 247);
+        border: none;
+        /*border: 2px solid white;
+        border-bottom: 30px solid white;*/
+        padding: 0px;
+        margin-bottom: 50px;
+    }
+
+    h1 {
+        height: 100px;
+        display: table-cell;
+        color: beige;
+
+        /*margin: 50px;*/
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    div.legendas {
+        padding: 50px;
+        color: white;
+        float: left;
+    }
+</style>
+
+<html>
+<div class="header">
+    <h1>Posicao atual:</h1>
+</div>
+
+<body>
+    <div>
+        <canvas id="myCanvas" width="480" height="320"></canvas>
+    </div>
+    <div class="legendas">
+        <a>TEXTO PARA TESTES</a>
+        <a>TEXTO PARA TESTES</a>
+        <a>TEXTO PARA TESTES</a>
+    </div>
+</body>
+
+</html>
+<script>
+
+
+
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+    //var x = 620;
+    //var y = 350;
+    var x = 500;
+    var y = 200;
+    var dx = 2;
+    var dy = -2;
+
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(x, y, 15, 0, Math.PI * 2);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.lineWidth = "5"
+        ctx.strokeStyle = "black"
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(background, 0, 0);
+        drawBall();
+        /* x += dx;
+        y += dy; */
+    }
+    setInterval(draw, 1000);
+
+
+
+
+
+    var canvas = document.getElementById("myCanvas"),
+        ctx = canvas.getContext("2d");
+
+    canvas.width = 680;
+    canvas.height = 406;
+
+    var background = new Image();
+    background.src = "pi.jpeg";
+
+    background.onload = function () {
+        ctx.drawImage(background, 0, 0);
+    }
+
+</script>
