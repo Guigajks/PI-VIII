@@ -5,7 +5,7 @@ import numpy as np
 import math
 
 def retorna_posicao(nome_rede):
-    if nome_rede == 'A1P1':
+    if nome_rede == 'JKS':
         return (0,0)
     elif nome_rede == 'A1P2':
         return (2,0)
